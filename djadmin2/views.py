@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+from __future__ import division, absolute_import, unicode_literals
+
+import operator
+
 from django.contrib.auth.forms import (PasswordChangeForm,
                                        AdminPasswordChangeForm)
 from django.contrib.auth.views import (logout as auth_logout,
@@ -10,14 +15,15 @@ from django.http import HttpResponseRedirect
 from django.utils.encoding import force_text
 from django.utils.text import capfirst
 from django.views import generic
+from django.db.models.fields import FieldDoesNotExist
 
 import extra_views
 
-import operator
 
 from . import permissions, utils
 from .forms import AdminAuthenticationForm
 from .viewmixins import Admin2Mixin, AdminModel2Mixin, Admin2ModelFormMixin
+from .filters import build_list_filter
 
 
 class IndexView(Admin2Mixin, generic.TemplateView):
@@ -126,10 +132,47 @@ class ModelListView(AdminModel2Mixin, generic.ListView):
         if self.model_admin.search_fields and search_term:
             queryset, search_use_distinct = self.get_search_results(queryset, search_term)
 
+        if self.model_admin.list_filter:
+            queryset = self.build_list_filter(queryset).qs
+
+        queryset = self._modify_queryset_for_sort(queryset)
+
         if search_use_distinct:
             return queryset.distinct()
         else:
             return queryset
+
+    def _modify_queryset_for_sort(self, queryset):
+        # If we are sorting AND the field exists on the model
+        sort_by = self.request.GET.get('sort', None)
+        if sort_by:
+            # Special case when we are not explicityly displaying fields
+            if sort_by == '-__str__':
+                queryset = queryset[::-1]
+            try:
+                # If we sort on '-' remove it before looking for that field
+                field_exists = sort_by
+                if field_exists[0] == '-':
+                    field_exists = field_exists[1:]
+
+                options = utils.model_options(self.model)
+                options.get_field(field_exists)
+                queryset = queryset.order_by(sort_by)
+            except FieldDoesNotExist:
+                # If the field does not exist then we dont sort on it
+                pass
+        return queryset
+
+    def build_list_filter(self, queryset=None):
+        if not hasattr(self, '_list_filter'):
+            if queryset is None:
+                queryset = self.get_queryset()
+            self._list_filter = build_list_filter(
+                self.request,
+                self.model_admin,
+                queryset,
+            )
+        return self._list_filter
 
     def get_context_data(self, **kwargs):
         context = super(ModelListView, self).get_context_data(**kwargs)
@@ -137,6 +180,8 @@ class ModelListView(AdminModel2Mixin, generic.ListView):
         context['actions'] = self.get_actions().values()
         context['search_fields'] = self.get_search_fields()
         context['search_term'] = self.request.GET.get('q', '')
+        context['list_filter'] = self.build_list_filter()
+        context['sort_term'] = self.request.GET.get('sort', '')
         return context
 
     def get_success_url(self):
@@ -179,7 +224,8 @@ class ModelEditFormView(AdminModel2Mixin, Admin2ModelFormMixin, extra_views.Upda
     def get_context_data(self, **kwargs):
         context = super(ModelEditFormView, self).get_context_data(**kwargs)
         context['model'] = self.get_model()
-        context['action'] = ugettext_lazy("Change")
+        context['action'] = "Change"
+        context['action_name'] = ugettext_lazy("Change")
         return context
 
 
@@ -199,7 +245,8 @@ class ModelAddFormView(AdminModel2Mixin, Admin2ModelFormMixin, extra_views.Creat
     def get_context_data(self, **kwargs):
         context = super(ModelAddFormView, self).get_context_data(**kwargs)
         context['model'] = self.get_model()
-        context['action'] = ugettext_lazy("Add")
+        context['action'] = "Add"
+        context['action_name'] = ugettext_lazy("Add")
         return context
 
 

@@ -8,8 +8,18 @@ django-admin2
 .. image:: https://coveralls.io/repos/twoscoops/django-admin2/badge.png
    :alt: Coverage Status
    :target: https://coveralls.io/r/twoscoops/django-admin2
+.. image:: https://pypip.in/v/django-admin2/badge.png
+   :target: https://crate.io/packages/django-admin2/
+.. image:: https://pypip.in/d/django-admin2/badge.png
+   :target: https://crate.io/packages/django-admin2/
 
-One of the most useful parts of ``django.contrib.admin`` is the ability to configure various views that touch and alter data. django-admin2 is a complete rewrite of that library using modern Class-Based Views and enjoying a design focused on extendibility and adaptability. By starting over, we can avoid the legacy code and make it easier to write extensions and themes.
+One of the most useful parts of ``django.contrib.admin`` is the ability to
+configure various views that touch and alter data. django-admin2 is a complete
+rewrite of that library using modern Class-Based Views and enjoying a design
+focused on extendibility and adaptability. By starting over, we can avoid the
+legacy code and make it easier to write extensions and themes.
+
+Documentation: http://django-admin2.rtfd.org/
 
 Features
 =============
@@ -66,12 +76,14 @@ Add djadmin2 and rest_framework to your settings file:
 
 .. code-block:: python
 
-   INSTALLED_APPS = (
-      ...
-      'djadmin2',
-      'rest_framework', # for the browsable API templates
-      ...
-   )
+    INSTALLED_APPS = (
+        ...
+        'djadmin2',
+        'rest_framework', # for the browsable API templates
+        'floppyforms', # For HTML5 form fields
+        'crispy_forms', # Required for the default theme's layout
+        ...
+    )
 
 Add djadmin2 urls to your URLconf:
 
@@ -139,6 +151,21 @@ If you create a new theme, you define it thus:
 
 History
 =========
+
+0.5.0 (pending)
+
+  * Implemented customizable value renderers
+  * Implemented list filters using django-filters. Greatly supersedes what Django provides.
+  * Implemented ModelAdmin2.save_on_top and ModelAdmin2.save_on_bottom
+  * Implemented BooleanField icons for List and Detail views
+  * Implemented default ``django.contrib.auth`` and ``django.contrib.sites`` registrations
+  * Implemented the displayed of verbose field/method names in list view
+  * Improved internal test coverage
+  * Documentation for Context Variables in Themes
+  * Corrected early nomenclature decisions
+  * Completed Internationalization
+  * Added django-admin2 to Transifex
+  * Translations for French, Polish, Slovak, Chinese, German, Catalan, Italian, and Spanish.
 
 0.4.0 (2013-06-30)
 

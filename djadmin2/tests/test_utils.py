@@ -33,12 +33,30 @@ class UtilsTest(TestCase):
             UtilsTestModel._meta,
             utils.model_options(UtilsTestModel)
         )
+        UtilsTestModel._meta.verbose_name = "Utils Test Model is singular"
+        UtilsTestModel._meta.verbose_name_plural = "Utils Test Model are " +\
+            " plural"
+        self.assertEquals(
+            UtilsTestModel._meta,
+            utils.model_options(UtilsTestModel)
+            )
+        UtilsTestModel._meta.verbose_name = "Utils Test Model"
+        UtilsTestModel._meta.verbose_name_plural = "Utils Test Models"
 
     def test_as_model_instance(self):
         self.assertEquals(
             self.instance._meta,
             utils.model_options(self.instance)
         )
+        self.instance._meta.verbose_name = "Utils Test Model is singular"
+        self.instance._meta.verbose_name_plural = "Utils Test Model are " +\
+            " plural"
+        self.assertEquals(
+            self.instance._meta,
+            utils.model_options(self.instance)
+            )
+        self.instance._meta.verbose_name = "Utils Test Model"
+        self.instance._meta.verbose_name_plural = "Utils Test Models"
 
     def test_admin2_urlname(self):
         self.assertEquals(
@@ -116,4 +134,36 @@ class UtilsTest(TestCase):
         self.assertEquals(
             self.instance._meta.app_label,
             utils.model_app_label(self.instance)
+        )
+
+    def test_get_attr_callable(self):
+        class Klass(object):
+            def hello(self):
+                return "hello"
+
+        self.assertEquals(
+            utils.get_attr(Klass(), "hello"),
+            "hello"
+        )
+
+    def test_get_attr_str(self):
+        class Klass(object):
+            def __str__(self):
+                return "str"
+
+            def __unicode__(self):
+                return "unicode"
+
+        self.assertEquals(
+            utils.get_attr(Klass(), "__str__"),
+            "unicode"
+        )
+
+    def test_get_attr(self):
+        class Klass(object):
+            attr = "value"
+
+        self.assertEquals(
+            utils.get_attr(Klass(), "attr"),
+            "value"
         )

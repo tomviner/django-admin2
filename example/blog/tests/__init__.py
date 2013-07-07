@@ -4,3 +4,4 @@ from test_permissions import *
 from test_modelforms import *
 from test_views import *
 from test_nestedobjects import *
+from test_filters import *

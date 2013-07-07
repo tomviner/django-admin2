@@ -70,11 +70,22 @@
         <thead>
           <th class="checkbox-column"><input type="checkbox" class="model-select-all"></th>
           {% for attr in view.model_admin.list_display %}
-            {% if forloop.first and attr == "__str__" %}
-              <th>{{ model_name|capfirst }}</th>
-            {% else %}
-              <th>{{ model|model_attr_verbose_name:attr|capfirst }}</th>
-            {% endif%}
+            <th>
+              {# comment if we sorted on this field last time invert the sort #}
+              {% if sort_term == attr %}
+                <a class='sort_link' href='./?sort=-{{attr}}'>
+              {% else %}
+                <a class='sort_link' href='./?sort={{attr}}'>
+              {% endif %}
+
+              {% if forloop.first and attr == "__str__" %}
+                {{ model_name|capfirst }}
+              {% else %}
+                {{ model|model_attr_verbose_name:attr|capfirst }}
+              {% endif %}
+
+              </a>
+            </th>
           {% endfor %}
         </thead>
         <tbody>
@@ -84,12 +95,12 @@
             {% for attr in view.model_admin.list_display %}
               <td>
                 {% if permissions.has_change_permission %}
-                  <a href="{% url view|admin2_urlname:'update' pk=obj.pk %}">{% get_attr obj attr %}</a>
+                  <a href="{% url view|admin2_urlname:'update' pk=obj.pk %}">{% render obj attr %}</a>
                 {% else %}
                   {% if permissions.has_view_permission %}
-                    <a href="{% url view|admin2_urlname:'detail' pk=obj.pk %}">{% get_attr obj attr %}</a>
+                    <a href="{% url view|admin2_urlname:'detail' pk=obj.pk %}">{% render obj attr %}</a>
                   {% else %}
-                    {% get_attr obj attr %}
+                    {% render obj attr %}
                   {% endif %}
                 {% endif %}
               </td>
@@ -102,6 +113,21 @@
       {{ object_list|length }} {{ model_name_pluralized }}
     </div>
   </form>
+
+
+  {% block filters %}
+    <div id="list_filter_container" class="well span4">
+      {% if list_filter %}
+        <h4>{# Translators : action verb #}{% trans "Filter" %}</h4>
+        <form id='filter_form' class="form-search">
+          {{ list_filter.form.as_p }}
+        </form>
+      {% else %}
+        <a href='./'>Reset Filter</a>
+      {% endif %}
+    </div>
+  {% endblock filters %}
+
 </div>
 
 {% endblock content %}

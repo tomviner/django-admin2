@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import division, absolute_import, unicode_literals
+
 from collections import namedtuple
 import logging
 
@@ -19,8 +22,22 @@ logger = logging.getLogger('djadmin2')
 
 class ModelAdmin2(object):
     """
-    Warning: This class is targeted for reduction.
-                It's bloated and ugly.
+    Adding new ModelAdmin2 attributes:
+
+        Step 1: Add the attribute to this class
+        Step 2: Add the attribute to djadmin2.settings.MODEL_ADMIN_ATTRS
+
+        Reasoning:
+
+            Changing values on ModelAdmin2 objects or their attributes from
+            within a view results in leaky scoping issues. Therefore, we use
+            the immutable_admin_factory to render the ModelAdmin2 class
+            practically immutable before passing it to the view. To constrain
+            things further (in order to protect ourselves from causing
+            hard-to-find security problems), we also restrict which attrs are
+            passed to the final ImmutableAdmin object (i.e. a namedtuple).
+            This prevents us from easily implementing methods/setters which
+            bypass the blocking features of the ImmutableAdmin.
     """
 
     list_display = ('__str__',)
@@ -36,6 +53,12 @@ class ModelAdmin2(object):
     verbose_name = None
     verbose_name_plural = None
     model_admin_attributes = settings.MODEL_ADMIN_ATTRS
+    save_on_top = False
+    save_on_bottom = True
+
+    # Not yet implemented. See #267 and #268
+    actions_on_bottom = False
+    actions_on_top = True
 
     search_fields = []
 
@@ -43,14 +66,17 @@ class ModelAdmin2(object):
     # TODO: Confirm that this is what the Django admin uses
     list_fields = []
 
-    #This shows up on the DocumentListView of the Posts
+    # This shows up on the DocumentListView of the Posts
     list_actions = [actions.DeleteSelectedAction]
 
     # This shows up in the DocumentDetailView of the Posts.
     document_actions = []
 
-    # shows up on a particular field
+    # Shows up on a particular field
     field_actions = {}
+
+    # Defines custom field renderers
+    field_renderers = {}
 
     fields = None
     exclude = None
@@ -248,5 +274,7 @@ def immutable_admin_factory(model_admin):
         Note: This won't stop developers from saving mutable objects to the result, but hopefully
                 developers attempting that 'workaround/hack' will read our documentation.
     """
-    ImmutableAdmin = namedtuple("ImmutableAdmin", model_admin.model_admin_attributes, verbose=False)
+    ImmutableAdmin = namedtuple('ImmutableAdmin',
+                                model_admin.model_admin_attributes,
+                                verbose=False)
     return ImmutableAdmin(*[getattr(model_admin, x) for x in model_admin.model_admin_attributes])

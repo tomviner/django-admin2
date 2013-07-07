@@ -41,11 +41,48 @@ Developers
 * Henri Colas (@NotSqrt)
 * Andy Boot (@bootandy)
 * Eleonore Mayola (@Eleonore9)
+* Michal Kuffa (@beezz / Michal Kuffa)
+* Tom Viner (@tomviner)
 
 Translators
 -----------
 
-* Henri Colas (@NotSqrt)
-* Danilo Bargen (@dbrgn)
-* Ignasi Fosch Alonso (@ifosch)
-* Margherita Zamponi (@Margherita-)
+Catalan
+
+* Ignasi Fosch Alonso (NaTx)
+
+Chinese
+
+* Eric Ho (EricHo)
+* Shiyao.Ma (introom)
+
+French
+
+* Henri Colas (NotSqrt) 
+
+German
+
+* Albrecht Mühlenschulte (a7p)
+* Danilo Bargen (dbrgn)
+* Jannis Leidel (jezdez)
+
+Italian
+
+* Margherita Zamponi (margherita.zamponi)
+
+Polish
+
+* Dariusz Smigiel (dasm)
+
+Portuguese (Brazil)
+
+* andrewsmedina
+
+Slovak
+
+* Ivana Kellyérová (eruraina)
+* Marek Zelinkaa (marekzelinka)
+
+Spanish
+
+* Ignasi Fosch Alonso (NaTx)
